@@ -53,7 +53,7 @@ npm install
 npm run dev
 ```
 
-Site: [http://localhost:3000](http://localhost:3000)
+Site: [http://localhost:3000](http://localhost:3000)g
 
 ## External API Configuration
 
