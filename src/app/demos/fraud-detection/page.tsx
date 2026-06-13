@@ -19,6 +19,28 @@ import type { FraudAnalysisResponse } from "@/lib/types";
 export default function FraudDetectionDemoPage() {
   const [results, setResults] = useState<FraudAnalysisResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [manualTransaction, setManualTransaction] = useState({
+  trans_num: "manual_transaction_001",
+  trans_date_trans_time: "2020-06-21 12:14:25",
+  cc_num: 2291163933867244,
+  merchant: "fraud_Kirlin and Sons",
+  category: "personal_care",
+  amt: "250",
+  first: "John",
+  last: "Doe",
+  gender: "M",
+  street: "123 Main St",
+  city: "Madrid",
+  state: "MD",
+  zip: 28001,
+  lat: 40.4168,
+  long: -3.7038,
+  city_pop: 3000000,
+  job: "Engineer",
+  dob: "1988-01-01",
+  merch_lat: 40.45,
+  merch_long: -3.69,
+});
   const [error, setError] = useState<string | null>(null);
   const apiConfigured = isFraudApiConfigured();
 
@@ -39,7 +61,45 @@ export default function FraudDetectionDemoPage() {
       setLoading(false);
     }
   };
+const handleManualSubmit = async () => {
+  setLoading(true);
+  setError(null);
+  setResults(null);
 
+  try {
+    const transaction = {
+      ...manualTransaction,
+      amt: Number(manualTransaction.amt),
+      lat: Number(manualTransaction.lat),
+      long: Number(manualTransaction.long),
+      zip: Number(manualTransaction.zip),
+      city_pop: Number(manualTransaction.city_pop),
+      merch_lat: Number(manualTransaction.merch_lat),
+      merch_long: Number(manualTransaction.merch_long),
+    };
+
+    const headers = Object.keys(transaction);
+    const values = Object.values(transaction).map((value) =>
+      typeof value === "string" ? `"${value.replaceAll('"', '""')}"` : String(value)
+    );
+
+    const csv = `${headers.join(",")}\n${values.join(",")}`;
+    const file = new File([csv], "manual_transaction.csv", {
+      type: "text/csv",
+    });
+
+    const data = await predictFraudBatch(file);
+    setResults(data);
+  } catch (err) {
+    setError(
+      err instanceof Error
+        ? err.message
+        : "Failed to reach the fraud detection API."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <Section className="pt-8">
       <PageContainer>
@@ -82,16 +142,101 @@ subtitle="Upload transaction data and analyze fraud risk using my XGBoost-based 
 
         <Card className="mb-8">
           <CardHeader>
+            <CardTitle>Analyze Single Transaction</CardTitle>
+          </CardHeader>
+
+          <p className="text-sm text-muted mb-6">
+            Enter transaction details manually and send one transaction to the deployed FastAPI backend.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-4 mb-6">
+            <input
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+              type="number"
+              value={manualTransaction.amt}
+              onChange={(e) =>
+              setManualTransaction({
+                ...manualTransaction,
+                amt: e.target.value,
+              })
+            }
+              placeholder="Amount"
+            />
+
+            <input
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+              value={manualTransaction.merchant}
+              onChange={(e) =>
+                setManualTransaction({
+                  ...manualTransaction,
+                  merchant: e.target.value,
+                })
+              }
+              placeholder="Merchant"
+            />
+
+            <input
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+              value={manualTransaction.category}
+              onChange={(e) =>
+                setManualTransaction({
+                  ...manualTransaction,
+                  category: e.target.value,
+                })
+              }
+              placeholder="Category"
+            />
+
+            <input
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+              value={manualTransaction.job}
+              onChange={(e) =>
+                setManualTransaction({
+                  ...manualTransaction,
+                  job: e.target.value,
+                })
+              }
+              placeholder="Customer job"
+            />
+
+            <input
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+              value={manualTransaction.trans_date_trans_time}
+              onChange={(e) =>
+                setManualTransaction({
+                  ...manualTransaction,
+                  trans_date_trans_time: e.target.value,
+                })
+              }
+              placeholder="Transaction datetime"
+            />
+
+            <input
+              className="rounded-lg border border-border bg-surface px-3 py-2 text-sm"
+              value={manualTransaction.dob}
+              onChange={(e) =>
+                setManualTransaction({
+                  ...manualTransaction,
+                  dob: e.target.value,
+                })
+              }
+              placeholder="Date of birth"
+            />
+          </div>
+
+          <Button
+            onClick={handleManualSubmit}
+            disabled={!apiConfigured || loading}
+          >
+            Analyze Transaction
+          </Button>
+        </Card>
+        <Card className="mb-8">
+          <CardHeader>
             <CardTitle>Upload Transaction Data</CardTitle>
           </CardHeader>
           <p className="text-sm text-muted mb-6">
-            CSV is sent to{" "}
-            <code className="text-xs bg-surface-elevated px-1.5 py-0.5 rounded">
-              {apiConfigured
-                ? `${getFraudApiUrl()}/predict_batch`
-                : "{FRAUD_API_URL}/predict_batch"}
-            </code>
-            . Predictions are generated by the deployed FastAPI backend using an XGBoost model trained on over 1.2 million transactions.
+            CSV is sent to external API. Predictions are generated by the deployed FastAPI backend using an XGBoost model trained on over 1.2 million transactions.
           </p>
           <FileUpload
             onFileSelect={handleFileSelect}

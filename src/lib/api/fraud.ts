@@ -168,6 +168,25 @@ export async function predictFraudBatch(
 
   return normalizeFraudResponse(rawResponse);
 }
+export async function predictFraudSingle(
+  transaction: Record<string, unknown>
+): Promise<FraudAnalysisResponse> {
+  const baseUrl = getFraudApiUrl();
+  if (!baseUrl) {
+    throw new Error(
+      "Fraud detection API is not configured. Set NEXT_PUBLIC_FRAUD_API_URL."
+    );
+  }
+
+  const rawResponse = await postJson<
+    RawFraudApiResponse,
+    { transactions: Record<string, unknown>[] }
+  >(`${baseUrl}/predict_batch`, {
+    transactions: [transaction],
+  });
+
+  return normalizeFraudResponse(rawResponse);
+}
 
 export function downloadFraudResults(data: FraudAnalysisResponse): void {
   const headers = [

@@ -76,10 +76,7 @@ export default function ExoplanetForm() {
           </h3>
           <p className="text-sm text-muted max-w-md leading-relaxed">
             The exoplanet classification API is not yet connected. When the
-            FastAPI inference service is deployed, set{" "}
-            <code className="text-xs bg-surface-elevated px-1.5 py-0.5 rounded">
-              NEXT_PUBLIC_EXOPLANET_API_URL
-            </code>{" "}
+            FastAPI inference service is deployed, set API
             to enable live predictions from this page.
           </p>
         </div>
@@ -93,12 +90,7 @@ export default function ExoplanetForm() {
         <CardHeader>
           <CardTitle>Stellar & Planetary Parameters</CardTitle>
           <p className="text-sm text-muted mt-1">
-            Parameters are sent to{" "}
-            <code className="text-xs bg-surface-elevated px-1 py-0.5 rounded">
-              {getExoplanetApiUrl()}
-              {getExoplanetPredictPath()}
-            </code>
-            . Predictions are returned by the external backend.
+            Parameters are sent to external API. Predictions are returned by the external backend.
           </p>
         </CardHeader>
 
