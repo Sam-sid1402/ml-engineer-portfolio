@@ -6,6 +6,7 @@ import { SITE } from "@/lib/constants";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import RagChatWidget from "@/components/RagChatWidget";
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
@@ -52,6 +53,7 @@ export default function RootLayout({
         <Navbar />
         <main className="flex-1 pt-16">{children}</main>
         <Footer />
+        <RagChatWidget />
         <Analytics />
         <SpeedInsights />
       </body>
